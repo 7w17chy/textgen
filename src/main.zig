@@ -1,6 +1,9 @@
 const std = @import("std");
 const File = std.fs.File;
 const Arena = std.heap.ArenaAllocator;
+const eql = std.mem.eql;
+const expect = std.testing.expect;
+const debug = std.debug;
 
 pub fn main() anyerror!void {
     const annot: Annotation = Annotation{ .floskel = Floskel() };
@@ -62,14 +65,123 @@ const Reader = struct {
     }
 };
 
+const Word = struct {
+    contents: []const u8,
+
+    pub fn init(string: []const u8) Word {
+        return .{
+            .contents = string,
+        };
+    }
+};
+
+// TODO: implement iterator
+const Line = struct {
+    /// line number
+    number: ?usize,
+    cursor: usize,
+    contents: []const u8,
+
+    pub fn init(num: ?usize, data: []const u8) Line {
+        return .{
+            .number = num,
+            .cursor = 0,
+            .contents = data,
+        };
+    }
+
+    /// Returns a copy of its contents with unneccessary tabs, newlines, spaces, ... stripped
+    pub fn tidy(self: *Line, allocator: *std.heap.Allocator) *[]u8 {}
+
+    fn isNoise(charact: u8) bool {
+        return (charact == '\t' or charact == '\n' or charact == ' ');
+    }
+
+    // only sublices may be given and the return value added to the start
+    // index of the sublice!
+    pub fn skipNoise(string: []const u8) error{EndOfSliceWithoutResult}!usize {
+        var i: usize = 0;
+        return while (i < string.len) : (i += 1) {
+            if (!isNoise(string[i])) break i;
+        } else error.EndOfSliceWithoutResult;
+    }
+
+    // only sublices may be given and the return value added to the start
+    // index of the sublice!
+    pub fn skipNotNoise(string: []const u8) error{EndOfSliceWithoutResult}!usize {
+        var i: usize = 0;
+        return while (i < string.len) : (i += 1) {
+            if (isNoise(string[i])) break i;
+        } else error.EndOfSliceWithoutResult;
+    }
+
+    pub fn words(self: *Line, allocator: *Arena) !*[]Word {
+        var ptr = try allocator.allocator.alloc(Word, self.contents.len);
+        std.debug.warn("Len of ptr: {}\n", .{ptr.len});
+        var ret_index: usize = 0;
+
+        var i: usize = 0;
+        var wb: usize = 0;
+        var we: usize = 0;
+
+        // FIXME: skip* changed, so this is horribly broken!
+        i = try skipNoise(self.contents[0..]);
+        while (i <= self.contents.len) {
+            wb = i;
+            we = try skipNotNoise(self.contents[wb..]);
+            //std.debug.warn("ret_index: {}\n", .{ret_index});
+            ptr[ret_index] = Word.init(self.contents[wb..we]);
+            ret_index += 1;
+            i = try skipNoise(self.contents[we..]);
+        }
+
+        return &ptr;
+    }
+};
+
+test "isNoise" {
+    expect(Line.isNoise('\n') == true);
+    expect(Line.isNoise('\t') == true);
+    expect(Line.isNoise(' ') == true);
+    expect(Line.isNoise('a') == false);
+}
+
+test "skip noise" {
+    //              012345
+    const string = "     henlo";
+    const first_non_noise = try Line.skipNoise(string[0..]);
+    expect(first_non_noise == 5);
+}
+
+test "skip not-noise" {
+    //              012345678
+    const string = "einsdrei    ";
+    const first_noise_index = try Line.skipNotNoise(string[0..]);
+    expect(first_noise_index == 8);
+}
+
+test "Line.words" {
+    var allocator = Arena.init(std.heap.page_allocator);
+    defer allocator.deinit();
+
+    var line: Line = Line.init(null, "  A     very    long    line          indeed  ");
+    const words: *[]Word = try line.words(&allocator);
+
+    expect(words.len == 5);
+    expect(eql(u8, words.*[0].contents, "A"));
+    expect(eql(u8, words.*[1].contents, "very"));
+    expect(eql(u8, words.*[2].contents, "long"));
+    expect(eql(u8, words.*[3].contents, "line"));
+    expect(eql(u8, words.*[4].contents, "indeed"));
+}
+
 test "Reader: read lines" {
     const txt =
         \\ Some text
         \\ hopefully with
         \\ newlines!
     ;
-    const eql = std.mem.eql;
-    const expect = std.testing.expect;
+
     var reader = Reader.initBuffer(txt) catch unreachable;
 
     expect(eql(u8, reader.line().?, " Some text"));
