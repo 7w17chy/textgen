@@ -21,8 +21,8 @@ const Reader = struct {
         var self: Reader = init();
         errdefer self.deinit();
         self.resource = buff;
-        self.jmp_pts = try self.allocator.create([10]usize);
-        return Self;
+        self.jmp_pts = try self.allocator.allocator.alloc(usize, 10);
+        return self;
     }
 
     fn init() Reader {
@@ -31,7 +31,7 @@ const Reader = struct {
             .jmp_pts = undefined,
             .cursor = 0,
             .last_newline = null,
-            .allocator = Arena.init(std.heap.GeneralPurposeAllocator(.{})),
+            .allocator = Arena.init(std.heap.page_allocator),
         };
     }
 
@@ -52,11 +52,12 @@ const Reader = struct {
     }
 
     pub fn line(self: *Reader) ?[]const u8 {
-        const lnl = self.last_newline orelse 0;
+        const lnl = if (self.last_newline) |ln| ln + 1 else 0;
         if (lnl == self.resource.len) return null;
-        var i: usize = self.cursor;
+        var i: usize = lnl + 1;
         while (i < self.resource.len and self.resource[i] != '\n') : (i += 1) {}
         self.last_newline = i; // update index of last newline found
+        //std.debug.warn("Returning from line: ind. {} to {}, `{}`\n", .{ lnl, i, self.resource[lnl..i] });
         return self.resource[lnl..i];
     }
 };
@@ -71,10 +72,9 @@ test "Reader: read lines" {
     const expect = std.testing.expect;
     var reader = Reader.initBuffer(txt) catch unreachable;
 
-    expect(eql([]const u8, reader.line().?, "Some text"));
-    expect(eql(reader.line().?, "hopefully with"));
-    expect(eql(reader.line().?, "newlines!"));
-    expect(eql(reader.line(), null));
+    expect(eql(u8, reader.line().?, " Some text"));
+    expect(eql(u8, reader.line().?, " hopefully with"));
+    expect(eql(u8, reader.line().?, " newlines!"));
 }
 
 const Annotation = union(enum) {
