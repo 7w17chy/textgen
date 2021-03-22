@@ -1,7 +1,7 @@
 #+title: Roadmap
 
-* [0/5] Implement basic functionality
-  - [ ] Implement Reader (basics like reading lines, dividing them into words)
+* [1/5] Implement basic functionality
+  - [X] Implement Reader (basics like reading lines, dividing them into words)
   - [ ] Implement a basic lexer -> recognizing keywords
   - [ ] Parse keywords
   - [ ] Substitute keywords with meaning (-> actually do stuff)
