@@ -73,14 +73,14 @@ pub const Reader = struct {
         self.jmp_pts.add(self.cursor);
     }
 
-    pub fn line(self: *Reader) ?[]const u8 {
+    pub fn line(self: *Reader) ?Line {
         const lnl = if (self.last_newline) |ln| ln + 1 else 0;
         if (lnl == self.resource.len) return null;
         var i: usize = lnl + 1;
         while (i < self.resource.len and self.resource[i] != '\n') : (i += 1) {}
         self.last_newline = i; // update index of last newline found
         //std.debug.warn("Returning from line: ind. {} to {}, `{}`\n", .{ lnl, i, self.resource[lnl..i] });
-        return self.resource[lnl..i];
+        return Line.init(null, self.resource[lnl..i]);
     }
 };
 

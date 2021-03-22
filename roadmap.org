@@ -6,8 +6,9 @@
   - [ ] Parse keywords
   - [ ] Substitute keywords with meaning (-> actually do stuff)
   - [ ] Output to file
-* [0/3] Polishing
+* [1/4] Polishing
   - [ ] Improve error messages
+  - [X] Make `Reader.line` return `Line`s
   - [ ] Beautify console output
   - [ ] Improve performance (for big files especially)
 * Add a GUI
