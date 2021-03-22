@@ -144,9 +144,32 @@ pub const Line = struct {
     }
 
     pub fn words(self: *Line, allocator: *Arena) ![]Word {
+        // var wrds = std.ArrayList(Word).init(&allocator.allocator);
+
+        // var wb: usize = 0;
+        // var we: usize = 0;
+        // var count: usize = 0;
+
+        // wb = try skipNoise(self.contents[0..]);
+        // while (wb <= self.contents.len) {
+        //     we = wb + (skipNotNoise(self.contents[wb..]) catch self.contents.len);
+        //     if ((we - wb) > 0) try wrds.append(Word.init(self.contents[wb..we]));
+        //     wb += skipNoise(self.contents[we..]) catch self.contents.len;
+        // }
+
+        // return wrds.toOwnedSlice();
+
+        // reduce code duplication
+        return self.filterWords(allocator, struct {
+            pub fn filter(src: []const u8) bool {
+                return true;
+            }
+        }.filter);
+    }
+
+    pub fn filterWords(self: *Line, allocator: *Arena, filterFn: fn (src: []const u8) bool) ![]Word {
         var wrds = std.ArrayList(Word).init(&allocator.allocator);
 
-        var i: usize = 0; // TODO: we can probably get rid of `i` -> use `wb` instead, more readable
         var wb: usize = 0;
         var we: usize = 0;
         var count: usize = 0;
@@ -154,7 +177,10 @@ pub const Line = struct {
         wb = try skipNoise(self.contents[0..]);
         while (wb <= self.contents.len) {
             we = wb + (skipNotNoise(self.contents[wb..]) catch self.contents.len);
-            if ((we - wb) > 0) try wrds.append(Word.init(self.contents[wb..we]));
+            if ((we - wb) > 0) {
+                if (filterFn(self.contents[wb..we]))
+                    try wrds.append(Word.init(self.contents[wb..we]));
+            }
             wb += skipNoise(self.contents[we..]) catch self.contents.len;
         }
 
@@ -206,7 +232,7 @@ test "Reader: read lines" {
 
     var reader = Reader.initBuffer(txt) catch unreachable;
 
-    expect(eql(u8, reader.line().?, " Some text"));
-    expect(eql(u8, reader.line().?, " hopefully with"));
-    expect(eql(u8, reader.line().?, " newlines!"));
+    expect(eql(u8, reader.line().?.contents, " Some text"));
+    expect(eql(u8, reader.line().?.contents, " hopefully with"));
+    expect(eql(u8, reader.line().?.contents, " newlines!"));
 }
