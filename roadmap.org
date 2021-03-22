@@ -15,3 +15,12 @@
 * Customization/cli flags
   - Output directory
   - Multiple input files
+* Grammar
+  - `#(x)` als generelle Syntax
+    - x = Parameter; koennen mit `:` spezialisiert werden. Spezialisierungen werden mit `;` getrennt
+      `#(P:1S;Perf)` => Pronomen; 1. Pers. Sg. Perfekt
+  - `#+` fuer Metainfo
+    - `#+LANG: DE` (auch als lowercase) zum spezifizieren der Sprache (und somit auch der Lookup-tables)
+  - `#(x)` = `Rule`, `x` = Specializer
+    - Fuer jede Sprache unterschiedliche `Specializer`
+    - Eigene Specializer definierbar

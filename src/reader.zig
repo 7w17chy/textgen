@@ -82,6 +82,15 @@ pub const Reader = struct {
         //std.debug.warn("Returning from line: ind. {} to {}, `{}`\n", .{ lnl, i, self.resource[lnl..i] });
         return Line.init(null, self.resource[lnl..i]);
     }
+
+    /// only return Line if filterFn returns true. It's argument is the contents of the line.
+    pub fn filterLine(self: *Reader, filterFn: fn (src: []const u8) bool) ?Line {
+        const ln: Line = self.line() orelse return null;
+        if (filterFn(ln.contents)) {
+            return ln;
+        }
+        return null;
+    }
 };
 
 pub const Word = struct {

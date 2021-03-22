@@ -17,7 +17,13 @@ pub fn main() anyerror!void {
         break :blk rdr;
     };
 
-    while (reader_file.line()) |line| {
+    while (reader_file.filterLine(struct {
+        pub fn filter(src: []const u8) bool {
+            if (src[0] == '#') return true;
+            std.debug.warn("Contents: {}, beginning: {}", .{ src, src[0] });
+            return false;
+        }
+    }.filter)) |line| {
         std.debug.warn("{}\n", .{line});
     }
 }
