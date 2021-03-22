@@ -4,6 +4,7 @@ const Arena = std.heap.ArenaAllocator;
 const eql = std.mem.eql;
 const expect = std.testing.expect;
 const debug = std.debug;
+const io = std.io;
 /// Longest Lifetime: Responsible for (de-)allocating file + resources,
 /// all other actions happen on slices into `resource`
 // TODO: implement iterator
@@ -60,9 +61,12 @@ pub const Reader = struct {
     pub fn initFile(file: File) !Reader {
         var self = init();
         errdefer self.deinit();
+
         const filesize = try file.stat();
-        self.jmp_pts = try self.allocator.create([10]usize);
-        self.resource = try file.readToEndAlloc(&self.allocator, filesize);
+        self.jmp_pts = try self.allocator.allocator.alloc(usize, 10);
+        self.resource = try file.readToEndAlloc(&self.allocator.allocator, filesize.size);
+
+        return self;
     }
 
     pub fn saveCursorPos(self: *Reader) void {
