@@ -34,6 +34,13 @@ const Reader = struct {
     last_newline: ?usize, // for `line`: even if the cursor is in the middle of the line, it should be able to return an entire line (last newline to next)
     allocator: Arena,
 
+    /// Indices into `Reader.jmp_pts`: Saves important indices into `Reader.resources`, namely where meta
+    /// information is stored or where the actual text begins/ends.
+    const FixedIndices = enum {
+        META_BEGIN,
+        META_END,
+    };
+
     /// Set the cursor to the specified position in the buffer. `last_newline` also gets reset.
     pub fn setCursorPos(new_pos: usize) error{IndexOutOfBounds}!void {
         if (new_pos < self.resource.len or new_pos > self.resource.len) return error.IndexOutOfBounds;
