@@ -139,13 +139,11 @@ const Line = struct {
         var we: usize = 0;
         var count: usize = 0;
 
-        // "  A     very    long    line          indeed  "
-        i = try skipNoise(self.contents[0..]);
-        while (i <= self.contents.len) {
-            wb = i;
-            we = i + (skipNotNoise(self.contents[wb..]) catch self.contents.len);
+        wb = try skipNoise(self.contents[0..]);
+        while (wb <= self.contents.len) {
+            we = wb + (skipNotNoise(self.contents[wb..]) catch self.contents.len);
             if ((we - wb) > 0) try wrds.append(Word.init(self.contents[wb..we]));
-            i += skipNoise(self.contents[we..]) catch self.contents.len;
+            wb += skipNoise(self.contents[we..]) catch self.contents.len;
         }
 
         return wrds.toOwnedSlice();
