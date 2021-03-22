@@ -7,6 +7,22 @@ const debug = std.debug;
 
 pub fn main() anyerror!void {
     const annot: Annotation = Annotation{ .floskel = Floskel() };
+
+    var allocator = Arena.init(std.heap.page_allocator);
+    defer allocator.deinit();
+
+    var line: Line = Line.init(null, "  A     very    long    line          indeed  ");
+    const words: []Word = try line.words(&allocator);
+
+    debug.warn("Len of words: {}\n", .{words.len});
+    for (words) |word, index| {
+        debug.warn("{}: {}\n", .{ index, word.contents });
+    }
+    // expect(eql(u8, words[0].contents, "A"));
+    // expect(eql(u8, words[1].contents, "very"));
+    // expect(eql(u8, words.*[2].contents, "long"));
+    // expect(eql(u8, words.*[3].contents, "line"));
+    // expect(eql(u8, words.*[4].contents, "indeed"));
 }
 /// Longest Lifetime: Responsible for (de-)allocating file + resources,
 /// all other actions happen on slices into `resource`
@@ -115,27 +131,24 @@ const Line = struct {
         } else error.EndOfSliceWithoutResult;
     }
 
-    pub fn words(self: *Line, allocator: *Arena) !*[]Word {
-        var ptr = try allocator.allocator.alloc(Word, self.contents.len);
-        std.debug.warn("Len of ptr: {}\n", .{ptr.len});
-        var ret_index: usize = 0;
+    pub fn words(self: *Line, allocator: *Arena) ![]Word {
+        var wrds = std.ArrayList(Word).init(&allocator.allocator);
 
-        var i: usize = 0;
+        var i: usize = 0; // TODO: we can probably get rid of `i` -> use `wb` instead, more readable
         var wb: usize = 0;
         var we: usize = 0;
+        var count: usize = 0;
 
         // "  A     very    long    line          indeed  "
-
         i = try skipNoise(self.contents[0..]);
         while (i <= self.contents.len) {
             wb = i;
-            we = i + skipNotNoise(self.contents[wb..]) catch |_| self.contents.len;
-            ptr[ret_index] = Word.init(self.contents[wb..we]);
-            ret_index += 1;
-            i += skipNoise(self.contents[we..]) catch |_| self.contents.len;
+            we = i + (skipNotNoise(self.contents[wb..]) catch self.contents.len);
+            if ((we - wb) > 0) try wrds.append(Word.init(self.contents[wb..we]));
+            i += skipNoise(self.contents[we..]) catch self.contents.len;
         }
 
-        return &ptr;
+        return wrds.toOwnedSlice();
     }
 };
 
@@ -165,14 +178,13 @@ test "Line.words" {
     defer allocator.deinit();
 
     var line: Line = Line.init(null, "  A     very    long    line          indeed  ");
-    const words: *[]Word = try line.words(&allocator);
+    const words: []Word = try line.words(&allocator);
 
-    //expect(words.len == 5);
-    expect(eql(u8, words.*[0].contents, "A"));
-    expect(eql(u8, words.*[1].contents, "very"));
-    expect(eql(u8, words.*[2].contents, "long"));
-    expect(eql(u8, words.*[3].contents, "line"));
-    expect(eql(u8, words.*[4].contents, "indeed"));
+    expect(eql(u8, words[0].contents, "A"));
+    expect(eql(u8, words[1].contents, "very"));
+    expect(eql(u8, words[2].contents, "long"));
+    expect(eql(u8, words[3].contents, "line"));
+    expect(eql(u8, words[4].contents, "indeed"));
 }
 
 test "Reader: read lines" {
