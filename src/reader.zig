@@ -177,9 +177,8 @@ pub const Line = struct {
         wb = try skipNoise(self.contents[0..]);
         while (wb <= self.contents.len) {
             we = wb + (skipNotNoise(self.contents[wb..]) catch self.contents.len);
-            if ((we - wb) > 0) {
-                if (filterFn(self.contents[wb..we]))
-                    try wrds.append(Word.init(self.contents[wb..we]));
+            if ((we - wb) > 0 and filterFn(self.contents[wb..we])) {
+                try wrds.append(Word.init(self.contents[wb..we]));
             }
             wb += skipNoise(self.contents[we..]) catch self.contents.len;
         }
