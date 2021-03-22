@@ -29,10 +29,21 @@ pub fn main() anyerror!void {
 // TODO: implement iterator
 const Reader = struct {
     resource: []const u8,
-    jmp_pts: []usize, // stored indexes into `resource`. should be a hashmap
+    jmp_pts: []usize, // stored indexes into `resource`. should be a hashmap. or indexing could be done via an enum
     cursor: usize,
     last_newline: ?usize, // for `line`: even if the cursor is in the middle of the line, it should be able to return an entire line (last newline to next)
     allocator: Arena,
+
+    /// Set the cursor to the specified position in the buffer. `last_newline` also gets reset.
+    pub fn setCursorPos(new_pos: usize) error{IndexOutOfBounds}!void {
+        if (new_pos < self.resource.len or new_pos > self.resource.len) return error.IndexOutOfBounds;
+        self.cursor = new_pos;
+
+        // search backwards for a newline character
+        var i: usize = self.cursor;
+        while (self.resource[i] != '\n' and i > self.resource.len) : (i -= 1) {}
+        self.last_newline = i;
+    }
 
     // TODO: initializing from file, stdin, a buffer, ...
     pub fn initBuffer(buff: []const u8) error{ OutOfMemory, EmptyBuffer }!Reader {
@@ -44,6 +55,7 @@ const Reader = struct {
         return self;
     }
 
+    /// Constructor
     fn init() Reader {
         return .{
             .resource = undefined,
