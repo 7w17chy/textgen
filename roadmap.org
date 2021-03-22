@@ -1,0 +1,16 @@
+#+title: Roadmap
+
+* [0/5] Implement basic functionality
+  - [ ] Implement Reader (basics like reading lines, dividing them into words)
+  - [ ] Implement a basic lexer -> recognizing keywords
+  - [ ] Parse keywords
+  - [ ] Substitute keywords with meaning (-> actually do stuff)
+  - [ ] Output to file
+* [0/3] Polishing
+  - [ ] Improve error messages
+  - [ ] Beautify console output
+  - [ ] Improve performance (for big files especially)
+* Add a GUI
+* Customization/cli flags
+  - Output directory
+  - Multiple input files
