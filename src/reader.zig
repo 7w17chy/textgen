@@ -143,28 +143,6 @@ pub const Line = struct {
     /// Returns a copy of its contents with unneccessary tabs, newlines, spaces, ... stripped
     pub fn tidy(self: *Line, allocator: *std.heap.Allocator) *[]u8 {}
 
-    fn isNoise(charact: u8) bool {
-        return (charact == '\t' or charact == '\n' or charact == ' ');
-    }
-
-    // only sublices may be given and the return value added to the start
-    // index of the sublice!
-    fn skipNoise(string: []const u8) error{EndOfSliceWithoutResult}!usize {
-        var i: usize = 0;
-        return while (i < string.len) : (i += 1) {
-            if (!isNoise(string[i])) break i;
-        } else error.EndOfSliceWithoutResult;
-    }
-
-    // only sublices may be given and the return value added to the start
-    // index of the sublice!
-    fn skipNotNoise(string: []const u8) error{EndOfSliceWithoutResult}!usize {
-        var i: usize = 0;
-        return while (i < string.len) : (i += 1) {
-            if (isNoise(string[i])) break i;
-        } else error.EndOfSliceWithoutResult;
-    }
-
     pub fn words(self: *Line, allocator: *Arena) ![]Word {
         // var wrds = std.ArrayList(Word).init(&allocator.allocator);
 
@@ -210,23 +188,23 @@ pub const Line = struct {
 };
 
 test "isNoise" {
-    expect(Line.isNoise('\n') == true);
-    expect(Line.isNoise('\t') == true);
-    expect(Line.isNoise(' ') == true);
-    expect(Line.isNoise('a') == false);
+    expect(isNoise('\n') == true);
+    expect(isNoise('\t') == true);
+    expect(isNoise(' ') == true);
+    expect(isNoise('a') == false);
 }
 
 test "skip noise" {
     //              012345
     const string = "     henlo";
-    const first_non_noise = try Line.skipNoise(string[0..]);
+    const first_non_noise = try skipNoise(string[0..]);
     expect(first_non_noise == 5);
 }
 
 test "skip not-noise" {
     //              012345678
     const string = "einsdrei    ";
-    const first_noise_index = try Line.skipNotNoise(string[0..]);
+    const first_noise_index = try skipNotNoise(string[0..]);
     expect(first_noise_index == 8);
 }
 
