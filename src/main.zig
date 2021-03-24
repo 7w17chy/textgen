@@ -22,16 +22,14 @@ pub fn main() anyerror!void {
     };
 
     // collect metainfo from file
-    // TODO: newlines in between will break the loop, file also shouldn't start with newlines or spaces
     const metainfo = blk: {
         var lns = std.ArrayList(reader.Line).init(&global_allocator.allocator);
-        while (reader_file.filterLine(struct {
-            pub fn filter(src: []const u8) bool {
-                if (src[0] == '#') return true;
-                return false;
+        while (reader_file.line()) |line| {
+            const contents = reader.LineContents.determine(&line);
+            switch (contents) {
+                .Text => if (line.contents[0] == '#') try lns.append(line),
+                else => continue,
             }
-        }.filter)) |line| {
-            try lns.append(line);
         }
 
         break :blk lns.toOwnedSlice();

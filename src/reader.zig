@@ -241,7 +241,7 @@ pub const LineContents = union(enum) {
     OnlyNoise: usize = 1,
     Text: Line,
 
-    pub fn determine(line: *Line) LineContents {
+    pub fn determine(line: *const Line) LineContents {
         const len = line.*.contents.len;
         if (len == 0) return LineContents{ .Empty = 0 };
         const end = skipNoise(line.*.contents[0..]) catch return LineContents{ .OnlyNoise = 1 };
