@@ -235,3 +235,49 @@ test "Reader: read lines" {
     expect(eql(u8, reader.line().?.contents, " hopefully with"));
     expect(eql(u8, reader.line().?.contents, " newlines!"));
 }
+
+const LineContents = union(enum) {
+    Empty: usize = 0,
+    OnlyNoise: usize = 1,
+    Text: Line,
+
+    pub fn determine(line: *Line) LineContents {
+        const len = line.*.contents.len;
+        if (len == 0) return LineContents{ .Empty = 0 };
+        const end = skipNoise(line.*.contents[0..]) catch return LineContents{ .OnlyNoise = 1 };
+        return LineContents{ .Text = line.* };
+    }
+};
+
+test "LineContents: Text" {
+    const example_line = "     henlo";
+    var line = Line.init(null, example_line);
+    const result = switch (LineContents.determine(&line)) {
+        .Text => true,
+        else => false,
+    };
+
+    expect(result);
+}
+
+test "LineContents: Empty" {
+    const example_line = "";
+    var line = Line.init(null, example_line);
+    const result = switch (LineContents.determine(&line)) {
+        .Empty => true,
+        else => false,
+    };
+
+    expect(result);
+}
+
+test "LineContents: OnlyNoise" {
+    const example_line = "                    ";
+    var line = Line.init(null, example_line);
+    const result = switch (LineContents.determine(&line)) {
+        .OnlyNoise => true,
+        else => false,
+    };
+
+    expect(result);
+}
