@@ -103,6 +103,28 @@ pub const Word = struct {
     }
 };
 
+fn isNoise(charact: u8) bool {
+    return (charact == '\t' or charact == '\n' or charact == ' ');
+}
+
+// only sublices may be given and the return value added to the start
+// index of the sublice!
+fn skipNoise(string: []const u8) error{EndOfSliceWithoutResult}!usize {
+    var i: usize = 0;
+    return while (i < string.len) : (i += 1) {
+        if (!isNoise(string[i])) break i;
+    } else error.EndOfSliceWithoutResult;
+}
+
+// only sublices may be given and the return value added to the start
+// index of the sublice!
+fn skipNotNoise(string: []const u8) error{EndOfSliceWithoutResult}!usize {
+    var i: usize = 0;
+    return while (i < string.len) : (i += 1) {
+        if (isNoise(string[i])) break i;
+    } else error.EndOfSliceWithoutResult;
+}
+
 // TODO: implement iterator
 pub const Line = struct {
     /// line number
