@@ -6,6 +6,10 @@ const reader = @import("./reader.zig");
 const syntax = @import("./syntax.zig");
 
 pub fn main() anyerror!void {
+    var global_allocator = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    defer global_allocator.deinit();
+
+    // open and read file
     var reader_file: reader.Reader = blk: {
         // TODO: find a better solution
         var direct = try fs.openDirAbsolute("/home/thulis/devel/zig/textgen/res/", .{ .access_sub_paths = true });
@@ -17,13 +21,23 @@ pub fn main() anyerror!void {
         break :blk rdr;
     };
 
-    while (reader_file.filterLine(struct {
-        pub fn filter(src: []const u8) bool {
-            if (src[0] == '#') return true;
-            std.debug.warn("Contents: {}, beginning: {}", .{ src, src[0] });
-            return false;
+    // collect metainfo from file
+    // TODO: newlines in between will break the loop, file also shouldn't start with newlines or spaces
+    const metainfo = blk: {
+        var lns = std.ArrayList(reader.Line).init(&global_allocator.allocator);
+        while (reader_file.filterLine(struct {
+            pub fn filter(src: []const u8) bool {
+                if (src[0] == '#') return true;
+                return false;
+            }
+        }.filter)) |line| {
+            try lns.append(line);
         }
-    }.filter)) |line| {
-        std.debug.warn("{}\n", .{line});
+
+        break :blk lns.toOwnedSlice();
+    };
+
+    for (metainfo) |line| {
+        std.debug.warn("Contents: {}\n", .{line});
     }
 }
