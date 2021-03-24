@@ -23,6 +23,7 @@ pub fn main() anyerror!void {
 
     // collect metainfo from file
     const metainfo = blk: {
+        defer reader_file.resetCursor();
         var lns = std.ArrayList(reader.Line).init(&global_allocator.allocator);
         while (reader_file.line()) |line| {
             const contents = reader.LineContents.determine(&line);

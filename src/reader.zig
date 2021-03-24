@@ -54,6 +54,12 @@ pub const Reader = struct {
         };
     }
 
+    /// Reset the cursor to its former position
+    pub fn resetCursor(self: *Reader) void {
+        // TODO: Former position should be remembered
+        self.cursor = 0;
+    }
+
     pub fn deinit(self: *Reader) void {
         self.allocator.deinit();
     }
