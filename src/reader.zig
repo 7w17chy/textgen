@@ -236,7 +236,7 @@ test "Reader: read lines" {
     expect(eql(u8, reader.line().?.contents, " newlines!"));
 }
 
-const LineContents = union(enum) {
+pub const LineContents = union(enum) {
     Empty: usize = 0,
     OnlyNoise: usize = 1,
     Text: Line,
