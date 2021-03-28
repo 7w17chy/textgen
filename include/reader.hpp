@@ -8,7 +8,8 @@
 
 namespace reader
 {
-    class string : public std::string
+    // lookup std::basic_string => https://en.cppreference.com/w/cpp/string/basic_string
+    class string// : public std::basic_string
     {
     public:
         class slice
