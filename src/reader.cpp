@@ -2,12 +2,12 @@
 using namespace reader;
 
 // use utf8
-[[nodiscard]] static bool isNoise(const char8_t c) noexcept
+[[nodiscard]] static bool isNoise(char8_t c) noexcept
 {
     return c == '\n' || c == '\t' || c == ' '; 
 }
 
-[[nodiscard]] static size_t skipNoise(const std::string& str, size_t index)
+[[nodiscard]] static size_t skipNoise(string::slice str, size_t index)
 {
     size_t count = 0;
     std::string::iterator it = str[index];

@@ -8,9 +8,6 @@
 
 namespace reader
 {
-    [[nodiscard]] static size_t skipNoise(const std::string&, size_t);
-    [[nodiscard]] static bool isNoise(const char8_t) noexcept;
-
     class string : public std::string
     {
     public:
@@ -32,6 +29,9 @@ namespace reader
         slice sliceInto(uint32_t begin, uint32_t end); 
     };
     
+    [[nodiscard]] static size_t skipNoise(string::slice, size_t);
+    [[nodiscard]] static bool isNoise(char8_t) noexcept;
+    
     // use concepts
     // template<const Reader R>
     // std::vector<std::slice> filter(R, bool(*filterFn)(const std::string&))
@@ -49,40 +49,40 @@ namespace reader
     class Reader
     {
     public:
-        class iterator : public std::iterator<std::input_iterator_tag, std::slice,
-                                              std::slice, const std::slice*, std::slice>
+        class iterator : public std::iterator<std::input_iterator_tag, string::slice,
+                                              string::slice, const string::slice*, string::slice>
         {
         public:
             std::optional<size_t> index_into;
             explicit iterator(std::optional<size_t> ind) : index_into(ind) {}
         
-            std::slice operator++();
-            std::slice operator++(int);
+            string::slice operator++();
+            string::slice operator++(int);
             bool operator!=(iterator);
             bool operator==(iterator);
-            std::slice operator*();
+            string::slice operator*();
         };
 
         iterator begin() const { return iterator(0); }
         iterator end() const { return iterator(NULL); }
         
-        virtual std::string& read_all() const = 0;
-        virtual std::slice read() const = 0;
+        virtual string& read_all() const = 0;
+        virtual string::slice read() const = 0;
     };
      
     class Line : public Reader
     {
         std::optional<size_t> number;
-        std::string contents;
+        string contents;
     public:
-        std::string& read_all() const override;         
-        std::slice read() const override;
+        string& read_all() const override;         
+        string::slice read() const override;
     };
      
     class Word : public Reader
     {
     public:
-        std::string& read_all() const override;
-        std::slice read() const override;
+        string& read_all() const override;
+        string::slice read() const override;
     };
 }
