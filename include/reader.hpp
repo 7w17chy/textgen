@@ -9,8 +9,43 @@
 namespace reader
 {
     [[nodiscard]] static size_t skipNoise(const std::string&, size_t);
-    [[nodiscard]] static bool isNoise(char8_t) noexcept;
+    [[nodiscard]] static bool isNoise(const char8_t) noexcept;
 
+    class string : public std::string
+    {
+    public:
+        class slice
+        {
+        private:
+            const char* ptr;
+            uint32_t offset;
+            uint32_t end;
+        public:
+            slice(const char* str, uint32_t begin, uint32_t end)
+                : ptr(str + begin), offset(0), end(end)
+            {}
+
+            operator++();
+            operator++(int);
+        };
+
+        slice sliceInto(uint32_t begin, uint32_t end); 
+    };
+    
+    // use concepts
+    // template<const Reader R>
+    // std::vector<std::slice> filter(R, bool(*filterFn)(const std::string&))
+    // {
+    //     std::vector<std::slice> retval();
+    //     // we know `Reader` implements iterator
+    //     for (auto it& : R) {
+    //         const std::string& contents = it.getContents();
+    //         if(filterFn(contents)) retval.push_back(slice(contents));
+    //     }
+
+    //     return retval;
+    // }
+    
     class Reader
     {
     public:
@@ -33,7 +68,6 @@ namespace reader
         
         virtual std::string& read_all() const = 0;
         virtual std::slice read() const = 0;
-        virtual std::vector<std::slice> filter(bool(*filterFn)(const std::string&)) const = 0;
     };
      
     class Line : public Reader
@@ -43,7 +77,6 @@ namespace reader
     public:
         std::string& read_all() const override;         
         std::slice read() const override;
-        std::vector<std::slice> filter(bool(*filterFn)(const std::string&)) const override;
     };
      
     class Word : public Reader
@@ -51,6 +84,5 @@ namespace reader
     public:
         std::string& read_all() const override;
         std::slice read() const override;
-        std::vector<std::slice> filter(bool(*filterFn)(const std::string&)) const override;
     };
 }

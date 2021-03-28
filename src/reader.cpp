@@ -2,7 +2,7 @@
 using namespace reader;
 
 // use utf8
-[[nodiscard]] static bool isNoise(char8_t c) noexcept
+[[nodiscard]] static bool isNoise(const char8_t c) noexcept
 {
     return c == '\n' || c == '\t' || c == ' '; 
 }
