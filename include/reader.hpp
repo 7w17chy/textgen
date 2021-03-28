@@ -1,10 +1,8 @@
 #pragma once
 
 #include <string>
-#include <valarray>
 #include <optional>
 #include <iterator>
-#include <vector>
 
 namespace reader
 {
@@ -69,8 +67,7 @@ namespace reader
         class iterator : public std::iterator<std::input_iterator_tag, string::slice,
                                               string::slice, const string::slice*, string::slice>
         {
-        private:
-            Reader rdr;
+	// each reader iterator will have to need it's own reader type so that it can `poll` with `read`
         public:
             std::optional<size_t> index_into;
             explicit iterator(std::optional<size_t> ind) : index_into(ind) {}
@@ -94,16 +91,14 @@ namespace reader
         std::optional<size_t> number;
         string contents;
     public:
-        string& read_all() const override;         
-        string::slice read() const override;
-        std::optional<string::slice> read() const;
+        string& read_all() const override;
+        std::optional<string::slice> read() const override;
     };
      
     class Word : public Reader
     {
     public:
         string& read_all() const override;
-        string::slice read() const override;
-        std::optional<string::slice> read() const;
+        std::optional<string::slice> read() const override;
     };
 }
