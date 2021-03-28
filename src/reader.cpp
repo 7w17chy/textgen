@@ -13,14 +13,19 @@ void string::slice::operator++(int val)
     offset += val;
 }
 
-bool string::slice::operator!=(slice other)
+bool string::slice::operator!=(string::slice other)
 {
     return this->ptr != other.ptr && this->offset != other.offset;
 }
 
-bool string::slice::operator==(slice other)
+bool string::slice::operator==(string::slice other)
 {
     return !(*this != other);
+}
+
+string::slice::reference operator*(string::slice rhs)
+{
+    return *(rhs.data());
 }
 
 string::slice string::slice::begin()

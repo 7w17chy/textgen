@@ -8,10 +8,10 @@
 
 namespace reader
 {
-    class string : public std::basic_string<char8_t>
+    class string : public std::basic_string<char>
     {
     public:
-        class slice : public std::iterator<std::input_iterator_tag, char8_t>
+        class slice : public std::iterator<std::input_iterator_tag, const char>
         {
         private:
             const char* ptr;
@@ -24,23 +24,30 @@ namespace reader
 
             slice begin();
             slice end();
+
+            const char* data() const noexcept { return this->ptr; }
             
             void operator++();
             void operator++(int);
             bool operator!=(slice);
             bool operator==(slice);
-            char8_t operator*();
+            reference operator*();
         };
 
-        string(const char8_t* str)
-            : std::basic_string<char8_t>(str)
+        string(const char* str)
+            : std::basic_string<char>(str)
         {}
+
+        const char* dataPtr() const noexcept
+        {
+            return this->data();
+        }
 
         slice sliceInto(uint32_t begin, uint32_t end); 
     };
     
     [[nodiscard]] static size_t skipNoise(string::slice, size_t);
-    [[nodiscard]] static bool isNoise(char8_t) noexcept;
+    [[nodiscard]] static bool isNoise(char) noexcept;
     
     // use concepts
     // template<const Reader R>
