@@ -69,11 +69,13 @@ namespace reader
         class iterator : public std::iterator<std::input_iterator_tag, string::slice,
                                               string::slice, const string::slice*, string::slice>
         {
+        private:
+            Reader rdr;
         public:
             std::optional<size_t> index_into;
             explicit iterator(std::optional<size_t> ind) : index_into(ind) {}
         
-            string::slice operator++();
+            string::slice operator++(); // advance with reader::read() etc.
             string::slice operator++(int);
             bool operator!=(iterator);
             bool operator==(iterator);
@@ -84,7 +86,7 @@ namespace reader
         iterator end() const { return iterator(NULL); }
         
         virtual string& read_all() const = 0;
-        virtual string::slice read() const = 0;
+        virtual std::optional<string::slice> read() const = 0;
     };
      
     class Line : public Reader
@@ -94,6 +96,7 @@ namespace reader
     public:
         string& read_all() const override;         
         string::slice read() const override;
+        std::optional<string::slice> read() const;
     };
      
     class Word : public Reader
@@ -101,5 +104,6 @@ namespace reader
     public:
         string& read_all() const override;
         string::slice read() const override;
+        std::optional<string::slice> read() const;
     };
 }
