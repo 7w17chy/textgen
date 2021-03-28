@@ -11,23 +11,29 @@ namespace reader
     class string : public std::basic_string<char8_t>
     {
     public:
-        class slice
+        class slice : public std::iterator<std::input_iterator_tag, char8_t>
         {
         private:
             const char* ptr;
             uint32_t offset;
-            uint32_t end;
+            uint32_t last;
         public:
-            slice(const char* str, uint32_t begin, uint32_t end)
-                : ptr(str + begin), offset(0), end(end)
+            slice(const char* str, ptrdiff_t begin, uint32_t last)
+                : ptr(str + begin), offset(0), last(last)
             {}
 
-            operator++();
-            operator++(int);
+            slice begin();
+            slice end();
+            
+            void operator++();
+            void operator++(int);
+            bool operator!=(slice);
+            bool operator==(slice);
+            char8_t operator*();
         };
 
         string(const char8_t* str)
-            : std::basic_str<char8_t>(str)
+            : std::basic_string<char8_t>(str)
         {}
 
         slice sliceInto(uint32_t begin, uint32_t end); 
