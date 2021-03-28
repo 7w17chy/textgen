@@ -8,8 +8,7 @@
 
 namespace reader
 {
-    // lookup std::basic_string => https://en.cppreference.com/w/cpp/string/basic_string
-    class string// : public std::basic_string
+    class string : public std::basic_string<char8_t>
     {
     public:
         class slice
@@ -26,6 +25,10 @@ namespace reader
             operator++();
             operator++(int);
         };
+
+        string(const char8_t* str)
+            : std::basic_str<char8_t>(str)
+        {}
 
         slice sliceInto(uint32_t begin, uint32_t end); 
     };
