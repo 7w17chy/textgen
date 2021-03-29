@@ -13,12 +13,22 @@ namespace reader
         {
         private:
             const char* ptr;
-            uint32_t offset;
-            uint32_t last;
-        public:
-            slice(const char* str, ptrdiff_t begin, uint32_t last)
-                : ptr(str + begin), offset(0), last(last)
+            const char* last;
+            
+            slice(const char* fst, const char* lst)
+                : ptr(fst), last(lst)
             {}
+        public:
+            slice(const char* str, ptrdiff_t begin, ptrdiff_t last)
+                : ptr(str + begin), last(str + last)
+            {}
+
+            template<typename T>
+            T size() const
+            {
+                ptrdiff_t diff = last - ptr;
+                return static_cast<T>(diff);
+            }
 
             slice begin();
             slice end();

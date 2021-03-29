@@ -22,18 +22,16 @@ void reader::skipNotNoise(string::slice slc)
 void string::slice::operator++()
 {
     ++ptr;
-    ++offset;
 }
 
 void string::slice::operator++(int val)
 {
     ptr += static_cast<ptrdiff_t>(val);
-    offset += val;
 }
 
 bool string::slice::operator!=(string::slice other)
 {
-    return this->ptr != other.ptr && this->offset != other.offset;
+    return this->ptr != other.ptr && this->last != other.last;
 }
 
 bool string::slice::operator==(string::slice other)
@@ -48,11 +46,12 @@ string::slice::reference string::slice::operator*()
 
 string::slice string::slice::begin()
 {
-    return slice(ptr, 0, last);
+    // return slice(ptr, 0, last);
+    return slice(ptr, last);
 }
 
 string::slice string::slice::end()
 {
-    return slice(ptr, last, last);
+    // return slice(ptr, last, last);
+    return slice(last, last);
 }
-
