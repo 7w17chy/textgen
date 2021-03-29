@@ -3,6 +3,7 @@
 #include <string>
 #include <optional>
 #include <iterator>
+//#include <concepts>
 
 namespace reader
 {
@@ -58,8 +59,11 @@ namespace reader
     void skipNotNoise(string::slice);
     [[nodiscard]] bool isNoise(char) noexcept;
     
+    template<typename R>
     class Reader
     {
+    private:
+        R contents;
     public:
         class iterator : public std::iterator<std::input_iterator_tag, string::slice,
                                               string::slice, const string::slice*, string::slice>
@@ -82,8 +86,9 @@ namespace reader
         virtual string& read_all() const = 0;
         virtual std::optional<string::slice> read() const = 0;
     };
-     
-    class Line : public Reader
+
+    template<typename R>
+    class Line : public Reader<R>
     {
         std::optional<size_t> number;
         string contents;
@@ -91,16 +96,19 @@ namespace reader
         string& read_all() const override;
         std::optional<string::slice> read() const override;
     };
-     
-    class Word : public Reader
+
+    template<typename R>
+    class Word : public Reader<R>
     {
     public:
         string& read_all() const override;
         std::optional<string::slice> read() const override;
     };
 
-    // TODO: use concepts
-    // template<const Reader R>
+    // template<typename T>
+    // concept Readable = std::is_base_of<reader::Reader, T>();
+    //
+    // template<Readable R>
     // std::vector<std::slice> filter(R, bool(*filterFn)(const std::string&))
     // {
     //     std::vector<std::slice> retval();

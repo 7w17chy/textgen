@@ -46,12 +46,10 @@ string::slice::reference string::slice::operator*()
 
 string::slice string::slice::begin()
 {
-    // return slice(ptr, 0, last);
     return slice(ptr, last);
 }
 
 string::slice string::slice::end()
 {
-    // return slice(ptr, last, last);
     return slice(last, last);
 }
