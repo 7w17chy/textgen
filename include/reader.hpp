@@ -58,51 +58,41 @@ namespace reader
     void skipNoise(string::slice);
     void skipNotNoise(string::slice);
     [[nodiscard]] bool isNoise(char) noexcept;
-    
+
+    // TODO: concept `Readable`
     template<typename R>
     class Reader
     {
     private:
         R contents;
     public:
-        class iterator : public std::iterator<std::input_iterator_tag, string::slice,
-                                              string::slice, const string::slice*, string::slice>
-        {
-	// each reader iterator will have to need it's own reader type so that it can `poll` with `read`
-        public:
-            std::optional<size_t> index_into;
-            explicit iterator(std::optional<size_t> ind) : index_into(ind) {}
-        
-            string::slice operator++(); // advance with reader::read() etc.
-            string::slice operator++(int);
-            bool operator!=(iterator);
-            bool operator==(iterator);
-            string::slice operator*();
-        };
-
-        iterator begin() const { return iterator(0); }
-        iterator end() const { return iterator(NULL); }
-        
-        virtual string& read_all() const = 0;
-        virtual std::optional<string::slice> read() const = 0;
+        virtual string& read_all() = 0;
+        virtual std::optional<string::slice> read() = 0;
+        virtual string::slice read_while(bool (*func)(string::slice)) = 0;
     };
 
     template<typename R>
     class Line : public Reader<R>
     {
+    private:
         std::optional<size_t> number;
         string contents;
     public:
-        string& read_all() const override;
-        std::optional<string::slice> read() const override;
+        class iterator : std::iterator<std::input_iterator_tag, string::slice>
+        {};
+        
+        string& read_all() override;
+        std::optional<string::slice> read() override;
+        string::slice read_while(bool (*func)(string::slice)) override;
     };
 
     template<typename R>
     class Word : public Reader<R>
     {
     public:
-        string& read_all() const override;
-        std::optional<string::slice> read() const override;
+        string& read_all() override;
+        std::optional<string::slice> read() override;
+        string::slice read_while(bool (*func)(string::slice)) override;
     };
 
     // template<typename T>
