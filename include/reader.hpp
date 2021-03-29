@@ -78,8 +78,25 @@ namespace reader
         std::optional<size_t> number;
         string contents;
     public:
+        // as an iterator; maybe return contents and line number?
         class iterator : std::iterator<std::input_iterator_tag, string::slice>
-        {};
+        {
+        private:
+            const char* index;
+        public:
+            iterator(const char* c)
+                : index(c)
+            {}
+            
+            reference operator*();
+            void operator++();
+            void operator++(int);
+            bool operator==(iterator);
+            bool operator!=(iterator);
+        };
+
+        iterator begin() { return iterator(contents.data()); }
+        iterator end() { return iterator(contents.data()[contents.size() - 1]); }
         
         string& read_all() override;
         std::optional<string::slice> read() override;
