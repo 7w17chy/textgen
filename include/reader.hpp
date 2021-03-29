@@ -44,22 +44,9 @@ namespace reader
         slice sliceInto(uint32_t begin, uint32_t end); 
     };
     
-    [[nodiscard]] static size_t skipNoise(string::slice, size_t);
-    [[nodiscard]] static bool isNoise(char) noexcept;
-    
-    // use concepts
-    // template<const Reader R>
-    // std::vector<std::slice> filter(R, bool(*filterFn)(const std::string&))
-    // {
-    //     std::vector<std::slice> retval();
-    //     // we know `Reader` implements iterator
-    //     for (auto it& : R) {
-    //         const std::string& contents = it.getContents();
-    //         if(filterFn(contents)) retval.push_back(slice(contents));
-    //     }
-
-    //     return retval;
-    // }
+    void skipNoise(string::slice);
+    void skipNotNoise(string::slice);
+    [[nodiscard]] bool isNoise(char) noexcept;
     
     class Reader
     {
@@ -101,4 +88,18 @@ namespace reader
         string& read_all() const override;
         std::optional<string::slice> read() const override;
     };
+
+    // TODO: use concepts
+    // template<const Reader R>
+    // std::vector<std::slice> filter(R, bool(*filterFn)(const std::string&))
+    // {
+    //     std::vector<std::slice> retval();
+    //     // we know `Reader` implements iterator
+    //     for (auto it& : R) {
+    //         const std::string& contents = it.getContents();
+    //         if(filterFn(contents)) retval.push_back(slice(contents));
+    //     }
+
+    //     return retval;
+    // }
 }
