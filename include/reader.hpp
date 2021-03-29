@@ -63,7 +63,7 @@ namespace reader
     template<typename R>
     class Reader
     {
-    private:
+    protected:
         R contents;
     public:
         virtual string& read_all() = 0;
@@ -76,7 +76,6 @@ namespace reader
     {
     private:
         std::optional<size_t> number;
-        string contents;
     public:
         // as an iterator; maybe return contents and line number?
         class iterator : std::iterator<std::input_iterator_tag, string::slice>
@@ -95,8 +94,8 @@ namespace reader
             bool operator!=(iterator);
         };
 
-        iterator begin() { return iterator(contents.data()); }
-        iterator end() { return iterator(contents.data()[contents.size() - 1]); }
+        iterator begin() { return iterator(this->contents.data()); }
+        iterator end() { return iterator(this->contents.data()[this->contents.size() - 1]); }
         
         string& read_all() override;
         std::optional<string::slice> read() override;
