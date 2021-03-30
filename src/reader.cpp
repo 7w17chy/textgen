@@ -1,19 +1,19 @@
 #include "reader.hpp"
-using namespace reader;
+using namespace basic;
 
 // use utf8
-[[nodiscard]] bool reader::isNoise(char c) noexcept
+[[nodiscard]] bool basic::isNoise(char c) noexcept
 {
     return c == '\n' || c == '\t' || c == ' '; 
 }
 
-void reader::skipNoise(string::slice slc)
+void basic::skipNoise(string::slice slc)
 {
     for (const char& chr : slc)
         if (!isNoise(chr)) break;
 }
 
-void reader::skipNotNoise(string::slice slc)
+void basic::skipNotNoise(string::slice slc)
 {
     for (const char& chr : slc)
         if (isNoise(chr)) break;

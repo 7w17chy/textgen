@@ -1,6 +1,6 @@
 #include <iostream>
 #include "reader.hpp"
-using namespace reader;
+using namespace basic;
 
 int main()
 {

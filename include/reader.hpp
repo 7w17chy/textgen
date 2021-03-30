@@ -5,8 +5,11 @@
 #include <iterator>
 #include <fstream>
 
+// TODO: use wide chars (char*_t) instead of `just` char
+
 namespace basic
 {
+
     class string : public std::basic_string<char>
     {
     public:
@@ -54,9 +57,13 @@ namespace basic
 
         slice sliceInto(uint32_t begin, uint32_t end); 
     };
+
+    [[nodiscard]] bool isNoise(char) noexcept;
+    void skipNoise(string::slice);
+    void skipNotNoise(string::slice);
 }
 
 namespace reader
 {
-    class reader : std::basic_fstream<char8_t> {};
+    class reader : std::basic_fstream<char> {};
 }
