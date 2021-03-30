@@ -53,3 +53,4 @@ string::slice string::slice::end()
 {
     return slice(last, last);
 }
+
