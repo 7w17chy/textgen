@@ -50,6 +50,14 @@ namespace basic
             : std::basic_string<char>(str)
         {}
 
+        string(char* str)
+            : std::basic_string<char>(str)
+        {}
+
+        string()
+            : std::basic_string<char>(NULL)
+        {}
+
         const char* dataPtr() const noexcept
         {
             return this->data();
